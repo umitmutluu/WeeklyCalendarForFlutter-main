@@ -65,8 +65,12 @@ class DayCell extends StatelessWidget {
           margin: const EdgeInsets.only(top: 4.0),
           height: 30,
           width: 30,
-          decoration: BoxDecoration(
-            border: Border.all(color: Colors.black),
+            decoration: BoxDecoration(
+              border: Border.all(color: Colors.black),
+              color: _isSelected(display)
+                  ? _isToday(display)
+                  ? todaySelectedCircleColor
+                  : Colors.white:Colors.transparent,
             shape: BoxShape.circle,
           ),
           alignment: Alignment.center,

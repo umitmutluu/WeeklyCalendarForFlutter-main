@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
-
 import '../shared/calendar_style.dart';
 import '../widgets/day_table_view.dart';
-
 import '../shared/utils.dart'
-    show getWeekdays, addDay, subtractDay, firstDayOfWeek;
+    show getWeekdays, getMonthdays, addDay, subtractDay, firstDayOfWeek, firstDayOfMonth, addMonth, subtractMonth;
 
 enum PageState {
   previous,
@@ -23,6 +21,7 @@ class WeekPage extends StatefulWidget {
     this.onChangedSelectedDate,
     this.onChangedPage,
     this.height,
+    this.isMonthly = false,
   });
 
   final DateTime now;
@@ -30,6 +29,7 @@ class WeekPage extends StatefulWidget {
   final CalendarStyle style;
   final bool isAutoSelect;
   final PageController pageController;
+  final bool isMonthly;
 
   final Function(DateTime)? onChangedSelectedDate;
   final Function(DateTime date, PageState state)? onChangedPage;
@@ -59,29 +59,28 @@ class _WeekPageState extends State<WeekPage> {
     _slectedDate = selectedDate;
     widget.pageController.addListener(_pageScrollListener);
   }
+
   @override
   void dispose() {
     widget.pageController.removeListener(_pageScrollListener);
     super.dispose();
   }
-  void _pageScrollListener (){
-    if(widget.pageController.page!>999){
+
+  void _pageScrollListener() {
+    if (widget.pageController.page! > 999) {
       widget.pageController.jumpToPage(999);
     }
   }
 
-
   @override
   Widget build(BuildContext context) {
-    return Flexible(
-      child: AnimatedSize(
-        duration: const Duration(milliseconds: 250),
-        curve: Curves.easeInOut,
-        alignment: Alignment.topCenter,
-        child: SizedBox(
-          height: height,
-          child: pageViewBuilder(),
-        ),
+    return AnimatedSize(
+      duration: const Duration(milliseconds: 250),
+      curve: Curves.easeInOut,
+      alignment: Alignment.topCenter,
+      child: SizedBox(
+        height: height,
+        child: pageViewBuilder(),
       ),
     );
   }
@@ -90,7 +89,7 @@ class _WeekPageState extends State<WeekPage> {
     return PageView.builder(
       itemBuilder: (context, index) {
         final idx = _getIndex(index);
-        return dayTable(idx);
+        return widget.isMonthly ? monthTable(idx) : dayTable(idx);
       },
       onPageChanged: onPageChanged,
       controller: widget.pageController,
@@ -103,6 +102,7 @@ class _WeekPageState extends State<WeekPage> {
     return DayTableView(
       moodValues: widget.style.moodValues ?? [],
       weekdays: weekdays,
+      isMonthly: false,
       onSelect: (date) {
         /// tarihe basma özelliği eklenirse
         // widget.onChangedSelectedDate?.call(date);
@@ -113,14 +113,39 @@ class _WeekPageState extends State<WeekPage> {
     );
   }
 
+  Widget monthTable(int index) {
+    int at = pageCounts[index] - 1;
+    final monthDays = getMonthdays(now, at);
+    final weeks = <List<DateTime>>[];
+    for (int i = 0; i < monthDays.length; i += 7) {
+      weeks.add(monthDays.sublist(i, i + 7 > monthDays.length ? monthDays.length : i + 7));
+    }
+    return Column(
+      children: weeks.map((week) {
+        return DayTableView(
+          isMonthly: true,
+          moodValues: widget.style.moodValues ?? [],
+          weekdays: week,
+          onSelect: (date) {
+            /// tarihe basma özelliği eklenirse
+            widget.isMonthly?widget.onChangedSelectedDate?.call(date):null;
+          },
+          selectedDate: selectedDate,
+          currentDate: now,
+          style: widget.style,
+        );
+      }).toList(),
+    );
+  }
+
   void changeSelectedDate(int value) {
     if (_pageState(value) == PageState.next) {
-      _slectedDate = addDay(selectedDate, 7);
+      _slectedDate = widget.isMonthly ? addMonth(selectedDate, 1) : addDay(selectedDate, 7);
       if (widget.isAutoSelect) {
         widget.onChangedSelectedDate?.call(_slectedDate);
       }
     } else {
-      _slectedDate = subtractDay(selectedDate, 7);
+      _slectedDate = widget.isMonthly ? subtractMonth(selectedDate, 1) : subtractDay(selectedDate, 7);
       if (widget.isAutoSelect) {
         widget.onChangedSelectedDate?.call(_slectedDate);
       }
@@ -128,14 +153,14 @@ class _WeekPageState extends State<WeekPage> {
   }
 
   void updateCurrentPageDate(int value) {
-    final first = firstDayOfWeek(_currentPageDate);
+    final first = widget.isMonthly ? firstDayOfMonth(_currentPageDate) : firstDayOfWeek(_currentPageDate);
     final wed = addDay(first, 2);
 
     if (_pageState(value) == PageState.next) {
-      _currentPageDate = addDay(wed, 7);
+      _currentPageDate = widget.isMonthly ? addMonth(wed, 1) : addDay(wed, 7);
       widget.onChangedPage?.call(_currentPageDate, PageState.next);
     } else {
-      _currentPageDate = subtractDay(wed, 7);
+      _currentPageDate = widget.isMonthly ? subtractMonth(wed, 1) : subtractDay(wed, 7);
       widget.onChangedPage?.call(_currentPageDate, PageState.previous);
     }
   }
@@ -145,10 +170,8 @@ class _WeekPageState extends State<WeekPage> {
     updateCurrentPageDate(value);
 
     int currentIndex = _getIndex(value);
-    int leftIndex =
-        (currentIndex - 1 < 0) ? pageCounts.length - 1 : currentIndex - 1;
-    int rightIndex =
-        (currentIndex + 1 > pageCounts.length - 1) ? 0 : currentIndex + 1;
+    int leftIndex = (currentIndex - 1 < 0) ? pageCounts.length - 1 : currentIndex - 1;
+    int rightIndex = (currentIndex + 1 > pageCounts.length - 1) ? 0 : currentIndex + 1;
 
     pageCounts[leftIndex] = pageCounts[currentIndex] - 1;
     pageCounts[rightIndex] = pageCounts[currentIndex] + 1;

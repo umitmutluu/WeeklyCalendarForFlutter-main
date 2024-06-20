@@ -22,12 +22,14 @@ class WeeklyCalendar extends StatefulWidget {
     ),
     this.isAutoSelect = true,
     this.onChangedSelectedDate,
+    this.isMonthly = false,
     this.onChangedPage,
     this.onTap,
   });
 
   final CalendarStyle calendarStyle;
   final bool isAutoSelect;
+  final bool isMonthly;
   final VoidCallback? onTap;
   final Function(DateTime)? onChangedSelectedDate;
   final Function(DateTime date, PageState state)? onChangedPage;
@@ -61,8 +63,8 @@ class _WeeklyCalendarState extends State<WeeklyCalendar> {
 
   @override
   Widget build(BuildContext context) {
-    return Flexible(
-      child: GestureDetector(
+    return
+      GestureDetector(
         onTap: widget.onTap,
         child: Container(
           padding: padding,
@@ -83,7 +85,10 @@ class _WeeklyCalendarState extends State<WeeklyCalendar> {
                               duration: Duration(milliseconds: 600),
                               curve: Curves.easeOut);
                         },
-                        child: Icon(Icons.chevron_left,color: Colors.black,)),
+                        child: Icon(
+                          Icons.chevron_left,
+                          color: Colors.black,
+                        )),
                     Expanded(
                       child: HeaderDateText(
                           date: currentPageDate, style: widget.calendarStyle),
@@ -99,10 +104,7 @@ class _WeeklyCalendarState extends State<WeeklyCalendar> {
                       },
                       child: Icon(
                         Icons.chevron_right,
-                        color: pageController.hasClients &&
-                                pageController.page! < 998.9
-                            ? Colors.black
-                            : Colors.red,
+                        color: Colors.black,
                       ),
                     ),
                   ],
@@ -113,6 +115,7 @@ class _WeeklyCalendarState extends State<WeeklyCalendar> {
                 height: widget.calendarStyle.height,
                 selectedDate: selectedDate,
                 now: now,
+                isMonthly: widget.isMonthly,
                 style: widget.calendarStyle,
                 isAutoSelect: widget.isAutoSelect,
                 onChangedPage: (date, state) {
@@ -134,12 +137,14 @@ class _WeeklyCalendarState extends State<WeeklyCalendar> {
             ],
           ),
         ),
-      ),
     );
   }
 
   Widget customDayOfWeek() {
     final weekdays = getWeekdays(now, 0);
-    return DayOfWeekView(weekdays: weekdays, style: widget.calendarStyle);
+    return DayOfWeekView(
+      weekdays: weekdays.where((date) => date != null).cast<DateTime>().toList(),
+      style: widget.calendarStyle,
+    );
   }
 }
