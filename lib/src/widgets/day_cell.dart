@@ -66,11 +66,11 @@ class DayCell extends StatelessWidget {
           height: 30,
           width: 30,
             decoration: BoxDecoration(
-              border: Border.all(color: Colors.black),
+              border: mood==null?Border.all(color: Colors.black):null,
               color: _isSelected(display)
                   ? _isToday(display)
-                  ? todaySelectedCircleColor
-                  : Colors.white:Colors.transparent,
+                  ?  selectedCircleColor
+                  :Colors.transparent:Colors.transparent,
             shape: BoxShape.circle,
           ),
           alignment: Alignment.center,
@@ -84,7 +84,7 @@ class DayCell extends StatelessWidget {
           style: TextStyle(
             fontSize: 12,
             fontWeight:
-                _isSelected(display) ? FontWeight.bold : FontWeight.w500,
+                 _isToday(display)? FontWeight.bold : FontWeight.w500,
             color: _dayTextColor(display),
           ),
         ),

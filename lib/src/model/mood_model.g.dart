@@ -7,6 +7,7 @@ part of 'mood_model.dart';
 // **************************************************************************
 
 MoodModel _$MoodModelFromJson(Map<String, dynamic> json) => MoodModel(
+      idValue: (json['idValue'] as num?)?.toInt(),
       date: (json['date'] as num?)?.toInt(),
       mood: json['mood'] as String?,
       image: (json['image'] as List<dynamic>?)
@@ -16,6 +17,7 @@ MoodModel _$MoodModelFromJson(Map<String, dynamic> json) => MoodModel(
     );
 
 Map<String, dynamic> _$MoodModelToJson(MoodModel instance) => <String, dynamic>{
+      'idValue': instance.idValue,
       'date': instance.date,
       'mood': instance.mood,
       'image': instance.image,

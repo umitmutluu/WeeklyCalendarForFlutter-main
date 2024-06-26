@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
@@ -66,78 +68,88 @@ class _WeeklyCalendarState extends State<WeeklyCalendar> {
     return
       GestureDetector(
         onTap: widget.onTap,
-        child: Container(
-          padding: padding,
-          margin: margin,
-          decoration: decoration,
-          child: Column(
-            mainAxisSize: MainAxisSize.max,
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              widget.calendarStyle.textWidget ?? const SizedBox.shrink(),
-              if (isShowHeaderDateText)
-                Row(
-                  mainAxisSize: MainAxisSize.min,
+          child: Container(
+            padding: padding,
+            margin: margin,
+            child: Stack(
+              children: [
+                ClipRect(
+                  child: BackdropFilter(
+                    filter: ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0),
+                    child: Container(
+                      decoration:decoration,),),
+                ),
+                Column(
+                  mainAxisSize: MainAxisSize.max,
+                  mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    GestureDetector(
-                        onTap: () {
-                          pageController.previousPage(
-                              duration: Duration(milliseconds: 600),
-                              curve: Curves.easeOut);
-                        },
-                        child: Icon(
-                          Icons.chevron_left,
-                          color: Colors.black,
-                        )),
-                    Expanded(
-                      child: HeaderDateText(
-                          date: currentPageDate, style: widget.calendarStyle),
-                    ),
-                    GestureDetector(
-                      onTap: () {
-                        if (pageController.hasClients &&
-                            pageController.page! < 998.9) {
-                          pageController.nextPage(
-                              duration: Duration(milliseconds: 600),
-                              curve: Curves.easeOut);
-                        }
-                      },
-                      child: Icon(
-                        Icons.chevron_right,
-                        color: Colors.black,
+                    widget.calendarStyle.textWidget ?? const SizedBox.shrink(),
+                    if (isShowHeaderDateText)
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          GestureDetector(
+                              onTap: () {
+                                pageController.previousPage(
+                                    duration: Duration(milliseconds: 600),
+                                    curve: Curves.easeOut);
+                              },
+                              child: Icon(
+                                Icons.chevron_left,
+                                color: Colors.black,
+                              )),
+                          Expanded(
+                            child: HeaderDateText(
+                                date: currentPageDate, style: widget.calendarStyle),
+                          ),
+                          GestureDetector(
+                            onTap: () {
+                              if (pageController.hasClients &&
+                                  pageController.page! < 998.9) {
+                                pageController.nextPage(
+                                    duration: Duration(milliseconds: 600),
+                                    curve: Curves.easeOut);
+                              }
+                            },
+                            child: Icon(
+                              Icons.chevron_right,
+                              color: Colors.black,
+                            ),
+                          ),
+                        ],
                       ),
+                    customDayOfWeek(),
+                    WeekPage(
+                      pageController: pageController,
+                      height: widget.calendarStyle.height,
+                      selectedDate: selectedDate,
+                      now: now,
+                      isMonthly: widget.isMonthly,
+                      style: widget.calendarStyle,
+                      isAutoSelect: widget.isAutoSelect,
+                      onChangedPage: (date, state) {
+                        setState(() {
+                          currentPageDate = date;
+                        });
+                        widget.onChangedPage?.call(date, state);
+                      },
+                      onChangedSelectedDate: (date) {
+                        setState(() {
+                          selectedDate = date;
+                        });
+                        widget.onChangedSelectedDate?.call(date);
+                      },
                     ),
+                    if (isShowFooterDateText)
+                      FooterDateText(
+                          selectedDate: selectedDate, style: widget.calendarStyle),
                   ],
                 ),
-              customDayOfWeek(),
-              WeekPage(
-                pageController: pageController,
-                height: widget.calendarStyle.height,
-                selectedDate: selectedDate,
-                now: now,
-                isMonthly: widget.isMonthly,
-                style: widget.calendarStyle,
-                isAutoSelect: widget.isAutoSelect,
-                onChangedPage: (date, state) {
-                  setState(() {
-                    currentPageDate = date;
-                  });
-                  widget.onChangedPage?.call(date, state);
-                },
-                onChangedSelectedDate: (date) {
-                  setState(() {
-                    selectedDate = date;
-                  });
-                  widget.onChangedSelectedDate?.call(date);
-                },
-              ),
-              if (isShowFooterDateText)
-                FooterDateText(
-                    selectedDate: selectedDate, style: widget.calendarStyle),
-            ],
+
+              ],
+            ),
           ),
-        ),
-    );
+          );
   }
 
   Widget customDayOfWeek() {
