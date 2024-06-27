@@ -2,13 +2,15 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:weekly_calendar/src/config/appconfig.dart';
+import 'package:weekly_calendar/src/config/gen/assets.gen.dart';
 
 import 'shared/calendar_style.dart';
 import 'widgets/footer_date_text.dart';
 import 'widgets/day_of_week_view.dart';
 import 'widgets/header_date_text.dart';
 import 'widgets/week_page.dart';
-import 'shared/utils.dart' show getWeekdays;
+import 'shared/utils.dart' show getBytesFromAsset, getWeekdays;
 
 class WeeklyCalendar extends StatefulWidget {
   const WeeklyCalendar({
@@ -61,6 +63,11 @@ class _WeeklyCalendarState extends State<WeeklyCalendar> {
     initializeDateFormatting(widget.calendarStyle.locale);
     pageController = PageController(initialPage: 999);
     super.initState();
+  }
+  @override
+  Future<void> didChangeDependencies() async {
+    AppConfig.defaultByte=await getBytesFromAsset(Assets.icons.emptyPhoto.path, 40);
+    super.didChangeDependencies();
   }
 
   @override

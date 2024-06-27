@@ -1,4 +1,8 @@
 
+import 'dart:ui';
+
+import 'package:flutter/services.dart';
+
 List<DateTime> getWeekdays(DateTime date, int at) {
   final first = firstDayOfWeek(date);
   if (at >= 0) {
@@ -32,7 +36,17 @@ List<DateTime> _getFixedMonthDays(DateTime date, int at) {
 
   return days;
 }
+Future<Uint8List> getBytesFromAsset(String path ,int width) async {
+  final  data = await rootBundle.load(path);
+  final  codec = await instantiateImageCodec(
+    data.buffer.asUint8List(),
+    targetWidth: width,
+  );
+  final  fi = await codec.getNextFrame();
+  final  byteData = await fi.image.toByteData(format: ImageByteFormat.png);
 
+  return byteData!.buffer.asUint8List();
+}
 List<DateTime> _addWeek(DateTime date, int add) {
   final day = addDay(date, 7 * add);
   return _getWeekDaysAt(day);

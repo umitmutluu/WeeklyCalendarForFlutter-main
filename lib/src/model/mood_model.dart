@@ -1,25 +1,43 @@
 import 'dart:collection';
 
+import 'package:flutter/services.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:equatable/equatable.dart';
+import 'package:weekly_calendar/src/config/appconfig.dart';
 
 part 'mood_model.g.dart';
 
+
+class Uint8ListConverter implements JsonConverter<Uint8List?, List<int>?> {
+  const Uint8ListConverter();
+
+  @override
+  Uint8List? fromJson(List<int>? json) {
+    return json != null ? Uint8List.fromList(json) : null;
+  }
+
+  @override
+  List<int>? toJson(Uint8List? object) {
+    return object?.toList();
+  }
+}
 @JsonSerializable()
+@Uint8ListConverter()
 class MoodModel with EquatableMixin {
-  @JsonKey(name: 'idValue')
-  int? idValue;
+
+  @JsonKey(name: 'id')
+  int? id;
   @JsonKey(name: 'date')
   int? date;
   @JsonKey(name: 'mood')
   String? mood;
   @JsonKey(name: 'image')
-  List<int>? image;
+  Uint8List? image;
   @JsonKey(name: 'note')
   String? note;
 
   MoodModel({
-    this.idValue,
+    this.id,
     this.date,
     this.mood,
     this.image,
@@ -32,20 +50,20 @@ class MoodModel with EquatableMixin {
   Map<String, dynamic> toJson() => _$MoodModelToJson(this);
 
   @override
-  List<Object?> get props => [idValue,date, mood, image, note];
+  List<Object?> get props => [id,date, mood, image, note];
 
   MoodModel copyWith({
-    int? idValue,
+    int? id,
     int? date,
     String? mood,
-    List<int>? image,
+    Uint8List? image,
     String? note,
   }) {
     return MoodModel(
-      idValue: idValue ?? this.idValue,
+      id: id ?? this.id,
       date: date ?? this.date,
       mood: mood ?? this.mood,
-      image: image ?? this.image,
+      image: image ?? this.image ?? AppConfig.defaultByte,
       note: note ?? this.note,
     );
   }
