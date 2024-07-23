@@ -18,6 +18,8 @@ class WeekPage extends StatefulWidget {
     required this.style,
     required this.isAutoSelect,
     required this.pageController,
+    required this.onTapped,
+
     this.onChangedSelectedDate,
     this.onChangedPage,
     this.height,
@@ -28,6 +30,7 @@ class WeekPage extends StatefulWidget {
   final DateTime selectedDate;
   final CalendarStyle style;
   final bool isAutoSelect;
+  final VoidCallback onTapped;
   final PageController pageController;
   final bool isMonthly;
 
@@ -78,7 +81,8 @@ class _WeekPageState extends State<WeekPage> {
       duration: const Duration(milliseconds: 250),
       curve: Curves.easeInOut,
       alignment: Alignment.topCenter,
-      child: SizedBox(
+      child: Container(
+        // padding: EdgeInsets.symmetric(horizontal: ),
         height: height,
         child: pageViewBuilder(),
       ),
@@ -89,7 +93,7 @@ class _WeekPageState extends State<WeekPage> {
     return PageView.builder(
       itemBuilder: (context, index) {
         final idx = _getIndex(index);
-        return widget.isMonthly ? monthTable(idx) : dayTable(idx);
+        return  dayTable(idx);
       },
       onPageChanged: onPageChanged,
       controller: widget.pageController,
@@ -100,12 +104,14 @@ class _WeekPageState extends State<WeekPage> {
     int at = pageCounts[index] - 1;
     final weekdays = getWeekdays(now, at);
     return DayTableView(
+      onTapped: () => widget.onTapped.call(),
       moodValues: widget.style.moodValues ?? [],
       weekdays: weekdays,
       isMonthly: false,
       onSelect: (date) {
         /// tarihe basma özelliği eklenirse
-        // widget.onChangedSelectedDate?.call(date);
+        widget.onChangedSelectedDate?.call(date);
+       // widget. onTapped.call();
       },
       selectedDate: selectedDate,
       currentDate: now,
@@ -113,30 +119,7 @@ class _WeekPageState extends State<WeekPage> {
     );
   }
 
-  Widget monthTable(int index) {
-    int at = pageCounts[index] - 1;
-    final monthDays = getMonthdays(now, at);
-    final weeks = <List<DateTime>>[];
-    for (int i = 0; i < monthDays.length; i += 7) {
-      weeks.add(monthDays.sublist(i, i + 7 > monthDays.length ? monthDays.length : i + 7));
-    }
-    return Column(
-      children: weeks.map((week) {
-        return DayTableView(
-          isMonthly: true,
-          moodValues: widget.style.moodValues ?? [],
-          weekdays: week,
-          onSelect: (date) {
-            /// tarihe basma özelliği eklenirse
-            widget.isMonthly?widget.onChangedSelectedDate?.call(date):null;
-          },
-          selectedDate: selectedDate,
-          currentDate: now,
-          style: widget.style,
-        );
-      }).toList(),
-    );
-  }
+
 
   void changeSelectedDate(int value) {
     if (_pageState(value) == PageState.next) {

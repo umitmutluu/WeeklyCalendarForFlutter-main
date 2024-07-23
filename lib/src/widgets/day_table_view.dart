@@ -9,6 +9,7 @@ class DayTableView extends StatelessWidget {
     super.key,
     required this.weekdays,
     required this.onSelect,
+    required this.onTapped,
     required this.selectedDate,
     required this.currentDate,
     required this.style,
@@ -19,6 +20,7 @@ class DayTableView extends StatelessWidget {
   final List<DateTime> weekdays;
   final List<MoodModel> moodValues;
   final Function(DateTime)? onSelect;
+  final VoidCallback? onTapped;
   final DateTime selectedDate;
   final DateTime currentDate;
   final CalendarStyle style;
@@ -53,7 +55,11 @@ class DayTableView extends StatelessWidget {
                   }
                 }
                 return GestureDetector(
-                  onTap: () => onSelect?.call(date),
+                  onTap: () {
+                    onSelect?.call(date);
+                    onTapped?.call();
+
+                  },
                   child: DayCell(
                     mood: mood,
                     display: date,

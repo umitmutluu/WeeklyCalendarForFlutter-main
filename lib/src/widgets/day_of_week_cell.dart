@@ -30,7 +30,7 @@ class DayOfWeekCell extends StatelessWidget {
         child: Text(
           text,
           style: TextStyle(
-            fontSize: 9,
+            fontSize: 8,
             fontWeight: FontWeight.bold,
             color: textColor,
           ),

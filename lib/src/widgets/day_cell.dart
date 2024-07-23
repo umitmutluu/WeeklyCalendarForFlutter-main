@@ -22,6 +22,22 @@ enum Mood {
       orElse: () => Mood.awesome,
     );
   }
+  static Mood? fromAnswer(String? value) {
+    switch (value) {
+      case 'Super':
+        return Mood.awesome;
+      case 'Happy':
+        return Mood.good;
+      case 'Calm':
+        return Mood.calm;
+      case 'Sad':
+        return Mood.unhappy;
+      case 'Angry':
+        return Mood.angry;
+      default:
+        return Mood.awesome; // veya uygun bir varsayılan değer
+    }
+  }
 }
 
 class DayCell extends StatelessWidget {
@@ -63,10 +79,10 @@ class DayCell extends StatelessWidget {
         AnimatedContainer(
           duration: const Duration(milliseconds: 300),
           margin: const EdgeInsets.only(top: 4.0),
-          height: 30,
-          width: 30,
+          height: 24,
+          width: 24,
             decoration: BoxDecoration(
-              border: mood==null?Border.all(color: Colors.black):null,
+              border: mood==null?Border.all(width:0.5,color: selectedCircleColor):null,
               color: _isSelected(display)
                   ? _isToday(display)
                   ?  selectedCircleColor
