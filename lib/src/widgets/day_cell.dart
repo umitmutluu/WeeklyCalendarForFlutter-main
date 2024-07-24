@@ -9,7 +9,8 @@ enum Mood {
   unhappy('UNHAPPY'),
   calm('CALM'),
   angry('ANGRY'),
-  awesome('AWESOME');
+  awesome('AWESOME'),
+  noValue('');
 
   final String rawValue;
 
@@ -18,8 +19,8 @@ enum Mood {
   // String değerini ilgili enum'a çevirmek için bir yöntem
   static Mood? fromString(String? value) {
     return Mood.values.firstWhere(
-      (e) => e.rawValue == value,
-      orElse: () => Mood.awesome,
+          (e) => e.rawValue == value,
+      orElse: () => Mood.noValue,
     );
   }
   static Mood? fromAnswer(String? value) {
@@ -35,7 +36,7 @@ enum Mood {
       case 'Angry':
         return Mood.angry;
       default:
-        return Mood.awesome; // veya uygun bir varsayılan değer
+        return Mood.noValue; // veya uygun bir varsayılan değer
     }
   }
 }
